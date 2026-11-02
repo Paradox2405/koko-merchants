@@ -74,7 +74,7 @@ h3{margin:16px 0 6px;font-size:1rem}
 <script>
 const $ = (id) => document.getElementById(id);
 // Set to true only after confirming Koko permits showing merchant logos/banners on your site.
-const SHOW_IMAGES = false;
+const SHOW_IMAGES = true;
 const PAGE = 48;
 let ALL = [], VIEW = [], shown = 0;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
