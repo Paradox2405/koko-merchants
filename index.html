@@ -1,56 +1,69 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Koko partner merchants</title>
+<title>Koko partner merchants: find stores that accept Koko</title>
+<meta name="description" content="Search and filter stores that accept Koko buy now pay later in Sri Lanka. Unofficial directory with discounts, categories and store locations.">
 <style>
-:root{--bg:#f7f6f3;--card:#fff;--ink:#1d1f24;--mute:#6b7280;--line:#e5e3dd;--accent:#e4572e;--chip:#efede7;--ok:#1f7a4d}
-@media(prefers-color-scheme:dark){:root{--bg:#15161a;--card:#1e2025;--ink:#eceae4;--mute:#9a9fa8;--line:#2d3037;--chip:#2a2d34;--accent:#ff7a52;--ok:#5fd09a}}
+:root{--bg:#f6f5f1;--card:#fff;--ink:#14171c;--mute:#5f6670;--line:#e4e2db;--chip:#eeede7;--accent:#0f766e;--accent-ink:#fff;--ok:#157347;--shadow:0 1px 2px rgba(20,23,28,.06),0 4px 14px rgba(20,23,28,.05)}
+[data-theme=dark]{--bg:#0f1114;--card:#181b20;--ink:#ecebe6;--mute:#9aa1ab;--line:#2a2e35;--chip:#23272e;--accent:#2dd4bf;--accent-ink:#06201d;--ok:#5fd09a;--shadow:none}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
-.wrap{max-width:1200px;margin:0 auto;padding:16px}
-h1{font-size:1.6rem;margin:8px 0 2px;letter-spacing:-.02em}
-.sub{color:var(--mute);margin:0 0 16px;font-size:.9rem}
-.bar{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0;border-bottom:1px solid var(--line)}
-.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-input,select,button{font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:9px 10px}
-#q{width:100%}
-select{flex:1 1 140px;min-width:0}
-label.chk{display:flex;align-items:center;gap:6px;font-size:.9rem;padding:0 4px}
-button{cursor:pointer}button:hover{border-color:var(--accent)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;transition:background .2s,color .2s}
+.wrap{max-width:1200px;margin:0 auto;padding:0 16px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:22px 0 6px}
+h1{font-size:clamp(1.5rem,4vw,2.1rem);margin:0;letter-spacing:-.025em;line-height:1.15}
+.sub{color:var(--mute);margin:6px 0 0;font-size:.9rem;max-width:60ch}
+.theme{flex:none;width:42px;height:42px;border-radius:50%;padding:0;display:grid;place-items:center;font-size:1.1rem}
+input,select,button{font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+button{cursor:pointer}button:hover,select:hover,input:hover{border-color:var(--accent)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-#count{color:var(--mute);font-size:.85rem;margin:12px 0}
-.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:left;display:flex;flex-direction:column;gap:10px;cursor:pointer;width:100%}
+.bar{position:sticky;top:0;z-index:5;background:var(--bg);padding:12px 0;border-bottom:1px solid var(--line)}
+#q{width:100%;padding:13px 14px;font-size:1.02rem;box-shadow:var(--shadow)}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:8px}
+.checks{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:10px;font-size:.9rem}
+.chk{display:flex;align-items:center;gap:7px;cursor:pointer}
+.chk input{width:17px;height:17px;padding:0;accent-color:var(--accent)}
+#reset{margin-left:auto;font-size:.85rem;padding:6px 12px;color:var(--mute)}
+#count{color:var(--mute);font-size:.85rem;margin:14px 0 10px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));padding-bottom:8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;text-align:left;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow);transition:transform .15s,border-color .15s}
+.card:hover{transform:translateY(-2px);border-color:var(--accent)}
 .top{display:flex;gap:12px;align-items:center}
-.logo{width:56px;height:56px;border-radius:10px;object-fit:contain;background:var(--chip);flex:none;display:grid;place-items:center;font-weight:700;font-size:1.3rem;color:var(--mute);overflow:hidden}
-.logo img{width:100%;height:100%;object-fit:contain}
-.name{font-weight:650;line-height:1.2;overflow-wrap:anywhere}
-.badge{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:.8rem;border-radius:6px;padding:2px 8px}
+.logo{position:relative;width:54px;height:54px;border-radius:12px;flex:none;display:grid;place-items:center;font-weight:700;font-size:1.3rem;overflow:hidden;background:hsl(var(--h) 60% 91%);color:hsl(var(--h) 50% 26%)}
+[data-theme=dark] .logo{background:hsl(var(--h) 28% 22%);color:hsl(var(--h) 70% 78%)}
+.logo img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:var(--card)}
+.name{font-weight:650;line-height:1.25;overflow-wrap:anywhere;margin-bottom:4px}
+.badge{display:inline-block;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:.78rem;border-radius:999px;padding:2px 10px}
 .badge.off{background:var(--chip);color:var(--mute)}
-.ch{font-size:.78rem;color:var(--mute);display:flex;gap:8px}
-.chips{display:flex;flex-wrap:wrap;gap:4px}
-.chip{background:var(--chip);border-radius:20px;padding:2px 9px;font-size:.75rem;color:var(--mute)}
-.empty{padding:48px 0;text-align:center;color:var(--mute)}
-#more{display:block;margin:20px auto}
-dialog{border:0;border-radius:14px;padding:0;width:min(640px,94vw);max-height:90vh;background:var(--card);color:var(--ink)}
-dialog::backdrop{background:rgba(0,0,0,.5)}
-.dbody{padding:18px}
-.banner{width:100%;aspect-ratio:16/6;object-fit:cover;background:var(--chip);display:block}
-.x{position:absolute;right:10px;top:10px}
-dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:12px 0}dt{color:var(--mute)}dd{margin:0}
-.loc{padding:8px 0;border-top:1px solid var(--line);font-size:.9rem}
-a{color:var(--accent)}
-h3{margin:16px 0 6px;font-size:1rem}
+.ch{display:flex;gap:6px;flex-wrap:wrap}
+.pill{font-size:.75rem;border:1px solid var(--line);border-radius:6px;padding:1px 8px;color:var(--mute)}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{background:var(--chip);border-radius:999px;padding:2px 10px;font-size:.75rem;color:var(--mute)}
+.empty{grid-column:1/-1;padding:56px 0;text-align:center;color:var(--mute)}
+#more{display:block;margin:22px auto;padding:10px 28px}
+footer{color:var(--mute);font-size:.78rem;padding:26px 0 40px;border-top:1px solid var(--line);margin-top:26px}
+dialog{border:0;border-radius:16px;padding:0;width:min(660px,94vw);max-height:90vh;background:var(--card);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.35)}
+dialog::backdrop{background:rgba(0,0,0,.55)}
+.dbody{padding:20px}.banner{width:100%;aspect-ratio:16/6;object-fit:cover;background:var(--chip);display:block}
+.x{position:absolute;right:10px;top:10px;width:36px;height:36px;border-radius:50%;padding:0}
+dl{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:14px 0}dt{color:var(--mute)}dd{margin:0}
+.loc{padding:9px 0;border-top:1px solid var(--line);font-size:.9rem}.loc.hit{background:var(--chip);margin:0 -8px;padding:9px 8px;border-radius:8px}
+a{color:var(--accent)}h2{margin:0}h3{margin:18px 0 8px;font-size:1rem}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Koko partner merchants</h1>
-  <p class="sub" id="updated">Loading…</p>
+  <header>
+    <div>
+      <h1>Koko partner merchants</h1>
+      <p class="sub" id="updated">Loading…</p>
+    </div>
+    <button class="theme" id="theme" aria-label="Switch to dark mode" title="Toggle dark mode">🌙</button>
+  </header>
   <div class="bar">
-    <input id="q" type="search" placeholder="Search merchants, keywords, tags" aria-label="Search">
+    <input id="q" type="search" placeholder="Search by store, keyword or tag" aria-label="Search merchants">
     <div class="row">
       <select id="tag" aria-label="Tag"></select>
       <select id="cat" aria-label="Category"></select>
@@ -58,79 +71,90 @@ h3{margin:16px 0 6px;font-size:1rem}
         <option value="">All channels</option><option value="online">Online</option>
         <option value="offline">In-store</option><option value="social">Social</option>
       </select>
+      <input id="loc" list="locs" placeholder="Location (e.g. Kandy)" aria-label="Filter by store location">
+      <datalist id="locs"></datalist>
       <select id="sort" aria-label="Sort">
-        <option value="name">Name A–Z</option><option value="disc">Highest discount</option>
-        <option value="new">Recently updated</option>
+        <option value="name">Sort: Name A–Z</option><option value="disc">Sort: Highest discount</option>
+        <option value="new">Sort: Recently updated</option>
       </select>
-      <label class="chk"><input type="checkbox" id="act"> Active discounts</label>
+    </div>
+    <div class="checks">
+      <label class="chk"><input type="checkbox" id="act"> Active discounts only</label>
+      <label class="chk"><input type="checkbox" id="img"> Stores with images first</label>
+      <button id="reset" type="button">Clear filters</button>
     </div>
   </div>
-  <div id="count"></div>
+  <div id="count" aria-live="polite"></div>
   <div class="grid" id="grid"></div>
   <button id="more" hidden>Show more</button>
+  <footer>Unofficial directory, not affiliated with Koko or any merchant. Discounts and locations change often, so confirm with the merchant or the Koko app before you buy.</footer>
 </div>
 <dialog id="dlg"><button class="x" id="close" aria-label="Close">✕</button><div id="dc"></div></dialog>
 
 <script>
-const $ = (id) => document.getElementById(id);
 // Set to true only after confirming Koko permits showing merchant logos/banners on your site.
-const SHOW_IMAGES = true;
+const SHOW_IMAGES = false;
 const PAGE = 48;
+const $ = (id) => document.getElementById(id);
 let ALL = [], VIEW = [], shown = 0;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const safeUrl = (u) => (/^https?:\/\//i.test(u || "") ? u : null);
-const fmtDate = (d) => (d ? new Date(d).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : "—");
+const fmtDate = (d) => (d ? new Date(d).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : "n/a");
+const hue = (s) => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7);
+const hasImg = (m) => !!(m.logo || m.banner);
+const chans = (m) => [m.offline && "In-store", m.online && "Online", m.social && "Social"].filter(Boolean);
 const isActive = (m) => {
   if (!m.discount) return false;
   const n = Date.now();
   return (!m.start || n >= Date.parse(m.start)) && (!m.end || n <= Date.parse(m.end) + 864e5 - 1);
 };
 
+// theme: light by default, remembered if storage works
+function setTheme(t) {
+  document.documentElement.dataset.theme = t;
+  $("theme").textContent = t === "dark" ? "☀️" : "🌙";
+  $("theme").setAttribute("aria-label", t === "dark" ? "Switch to light mode" : "Switch to dark mode");
+  try { localStorage.setItem("theme", t); } catch {}
+}
+let saved = null; try { saved = localStorage.getItem("theme"); } catch {}
+setTheme(saved === "dark" ? "dark" : "light");
+$("theme").onclick = () => setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+
 function logoHTML(m) {
-  const ph = `<span>${esc(m.name.charAt(0).toUpperCase())}</span>`;
-  return `<div class="logo" data-i="${esc(m.name.charAt(0).toUpperCase())}">${SHOW_IMAGES && m.logo ? `<img loading="lazy" alt="" src="${esc(m.logo)}" onerror="this.remove()">` : ""}${SHOW_IMAGES && m.logo ? "" : ph}</div>`;
+  const img = SHOW_IMAGES && m.logo ? `<img loading="lazy" alt="" src="${esc(m.logo)}" onerror="this.remove()">` : "";
+  return `<div class="logo" style="--h:${hue(m.name)}"><span>${esc(m.name.charAt(0).toUpperCase())}</span>${img}</div>`;
 }
-// If the image fails, show the initial instead
-document.addEventListener("error", (e) => {
-  if (e.target.tagName === "IMG" && e.target.closest(".logo") && !e.target.closest(".logo").querySelector("span")) {
-    const p = e.target.closest(".logo"); p.insertAdjacentHTML("beforeend", `<span>${esc(p.dataset.i || "?")}</span>`);
-  }
-}, true);
-
 function cardHTML(m, i) {
-  const chips = m.tags.slice(0, 3).map((t) => `<span class="chip">${esc(t)}</span>`).join("") +
-    (m.tags.length > 3 ? `<span class="chip">+${m.tags.length - 3}</span>` : "");
+  const chips = m.tags.slice(0, 3).map((t) => `<span class="chip">${esc(t)}</span>`).join("") + (m.tags.length > 3 ? `<span class="chip">+${m.tags.length - 3}</span>` : "");
   const badge = m.discount ? `<span class="badge ${isActive(m) ? "" : "off"}">${esc(m.discount)}</span>` : "";
-  const ch = [m.offline && "In-store", m.online && "Online", m.social && "Social"].filter(Boolean).join(" · ");
-  return `<button class="card" data-i="${i}">
-    <div class="top">${logoHTML(m)}
-    <div><div class="name">${esc(m.name)}</div>${badge}</div></div>
-    <div class="ch">${esc(ch)}</div><div class="chips">${chips}</div></button>`;
+  return `<button class="card" data-i="${i}"><div class="top">${logoHTML(m)}<div><div class="name">${esc(m.name)}</div>${badge}</div></div>
+    <div class="ch">${chans(m).map((c) => `<span class="pill">${c}</span>`).join("")}</div><div class="chips">${chips}</div></button>`;
 }
 
+const FIELDS = ["q", "tag", "cat", "chan", "loc", "sort"];
 function readURL() {
   const p = new URLSearchParams(location.search);
-  $("q").value = p.get("q") || ""; $("tag").value = p.get("tag") || ""; $("cat").value = p.get("cat") || "";
-  $("chan").value = p.get("chan") || ""; $("sort").value = p.get("sort") || "name"; $("act").checked = p.get("act") === "1";
+  FIELDS.forEach((k) => ($(k).value = p.get(k) || (k === "sort" ? "name" : "")));
+  $("act").checked = p.get("act") === "1"; $("img").checked = p.get("img") === "1";
 }
 function writeURL() {
   const p = new URLSearchParams();
-  [["q", $("q").value.trim()], ["tag", $("tag").value], ["cat", $("cat").value], ["chan", $("chan").value],
-   ["sort", $("sort").value === "name" ? "" : $("sort").value], ["act", $("act").checked ? "1" : ""]]
-    .forEach(([k, v]) => v && p.set(k, v));
+  FIELDS.forEach((k) => { const v = $(k).value.trim(); if (v && !(k === "sort" && v === "name")) p.set(k, v); });
+  if ($("act").checked) p.set("act", "1"); if ($("img").checked) p.set("img", "1");
   history.replaceState(null, "", p.toString() ? "?" + p : location.pathname);
 }
 
 function apply() {
-  const q = $("q").value.trim().toLowerCase(), tag = $("tag").value, cat = $("cat").value, chan = $("chan").value;
+  const q = $("q").value.trim().toLowerCase(), tag = $("tag").value, cat = $("cat").value, chan = $("chan").value, loc = $("loc").value.trim().toLowerCase();
   VIEW = ALL.filter((m) =>
     (!q || q.split(/\s+/).every((w) => m.search.includes(w))) &&
-    (!tag || m.tags.includes(tag)) && (!cat || m.categories.includes(cat)) &&
-    (!chan || m[chan]) && (!$("act").checked || isActive(m)));
+    (!tag || m.tags.includes(tag)) && (!cat || m.categories.includes(cat)) && (!chan || m[chan]) &&
+    (!loc || m._loc.includes(loc)) && (!$("act").checked || isActive(m)));
   const s = $("sort").value;
   if (s === "name") VIEW.sort((a, b) => a.name.localeCompare(b.name));
   if (s === "disc") VIEW.sort((a, b) => b.discountPct - a.discountPct || a.name.localeCompare(b.name));
   if (s === "new") VIEW.sort((a, b) => (b.updatedAt || "").localeCompare(a.updatedAt || ""));
+  if ($("img").checked) VIEW = [...VIEW.filter(hasImg), ...VIEW.filter((m) => !hasImg(m))];
   shown = 0; $("grid").innerHTML = ""; writeURL(); more();
 }
 function more() {
@@ -139,60 +163,61 @@ function more() {
   shown += chunk.length;
   $("more").hidden = shown >= VIEW.length;
   $("count").textContent = VIEW.length ? `${VIEW.length} merchant${VIEW.length === 1 ? "" : "s"}` : "";
-  if (!VIEW.length) $("grid").innerHTML = `<div class="empty">No merchants match. Try clearing a filter or searching a different word.</div>`;
+  if (!VIEW.length) $("grid").innerHTML = `<div class="empty">No merchants match. Clear a filter or try a different word.</div>`;
 }
 
 function openModal(m) {
-  const site = safeUrl(m.siteUrl), soc = safeUrl(m.socialUrl);
-  const locs = m.locations.map((l) => {
+  const site = safeUrl(m.siteUrl), soc = safeUrl(m.socialUrl), loc = $("loc").value.trim().toLowerCase();
+  const text = (l) => [l.outlet, l.address, l.branch].join(" ").toLowerCase();
+  const locs = [...m.locations].sort((a, b) => (loc && text(b).includes(loc)) - (loc && text(a).includes(loc))).map((l) => {
     const map = safeUrl(l.map);
-    return `<div class="loc"><strong>${esc(l.outlet || l.branch || "Outlet")}</strong>${l.branch && l.outlet ? ` (${esc(l.branch)})` : ""}<br>${esc(l.address || "")}${map ? `<br><a href="${esc(map)}" target="_blank" rel="noopener">Open in Google Maps</a>` : ""}</div>`;
+    return `<div class="loc ${loc && text(l).includes(loc) ? "hit" : ""}"><strong>${esc(l.outlet || l.branch || "Outlet")}</strong>${l.branch && l.outlet ? ` (${esc(l.branch)})` : ""}<br>${esc(l.address || "")}${map ? `<br><a href="${esc(map)}" target="_blank" rel="noopener">Open in Google Maps</a>` : ""}</div>`;
   }).join("");
-  $("dc").innerHTML = `
-    ${SHOW_IMAGES && m.banner ? `<img class="banner" alt="" src="${esc(m.banner)}" onerror="this.remove()">` : ""}
-    <div class="dbody">
-      <div class="top">${logoHTML(m)}<h2 style="margin:0">${esc(m.name)}</h2></div>
-      <dl>
-        ${m.discount ? `<dt>Discount</dt><dd>${esc(m.discount)}${m.discountNote ? `<br><small>${esc(m.discountNote)}</small>` : ""}</dd>
-        <dt>Valid</dt><dd>${fmtDate(m.start)} to ${fmtDate(m.end)} ${isActive(m) ? `<strong style="color:var(--ok)">Active</strong>` : `<span style="color:var(--mute)">Not active</span>`}</dd>` : ""}
-        <dt>Channels</dt><dd>${[m.offline && "In-store", m.online && "Online", m.social && "Social"].filter(Boolean).join(", ") || "—"}</dd>
-        ${site ? `<dt>Website</dt><dd><a href="${esc(site)}" target="_blank" rel="noopener">${esc(site.replace(/^https?:\/\//, ""))}</a></dd>` : ""}
-        ${soc ? `<dt>Social</dt><dd><a href="${esc(soc)}" target="_blank" rel="noopener">${esc(soc.replace(/^https?:\/\//, ""))}</a></dd>` : ""}
-      </dl>
-      ${m.categories.length ? `<h3>Categories</h3><div class="chips">${m.categories.map((c) => `<span class="chip">${esc(c)}</span>`).join("")}</div>` : ""}
-      ${m.tags.length ? `<h3>Tags</h3><div class="chips">${m.tags.map((c) => `<span class="chip">${esc(c)}</span>`).join("")}</div>` : ""}
-      ${locs ? `<h3>Store locations (${m.locations.length})</h3>${locs}` : ""}
-    </div>`;
+  const chipList = (a) => `<div class="chips">${a.map((c) => `<span class="chip">${esc(c)}</span>`).join("")}</div>`;
+  $("dc").innerHTML = `${SHOW_IMAGES && m.banner ? `<img class="banner" alt="" src="${esc(m.banner)}" onerror="this.remove()">` : ""}
+    <div class="dbody"><div class="top">${logoHTML(m)}<h2>${esc(m.name)}</h2></div>
+    <dl>${m.discount ? `<dt>Discount</dt><dd>${esc(m.discount)}${m.discountNote ? `<br><small>${esc(m.discountNote)}</small>` : ""}</dd>
+      <dt>Valid</dt><dd>${fmtDate(m.start)} to ${fmtDate(m.end)} ${isActive(m) ? `<strong style="color:var(--ok)">Active</strong>` : `<span style="color:var(--mute)">Not active</span>`}</dd>` : ""}
+      <dt>Channels</dt><dd>${chans(m).join(", ") || "n/a"}</dd>
+      ${site ? `<dt>Website</dt><dd><a href="${esc(site)}" target="_blank" rel="noopener">${esc(site.replace(/^https?:\/\//, ""))}</a></dd>` : ""}
+      ${soc ? `<dt>Social</dt><dd><a href="${esc(soc)}" target="_blank" rel="noopener">${esc(soc.replace(/^https?:\/\//, ""))}</a></dd>` : ""}</dl>
+    ${m.categories.length ? `<h3>Categories</h3>${chipList(m.categories)}` : ""}
+    ${m.tags.length ? `<h3>Tags</h3>${chipList(m.tags)}` : ""}
+    ${locs ? `<h3>Store locations (${m.locations.length})</h3>${locs}` : ""}</div>`;
   $("dlg").showModal();
 }
 
-function fillSelect(id, label, values) {
-  $(id).innerHTML = `<option value="">${label}</option>` + [...new Set(values)].sort((a, b) => a.localeCompare(b))
-    .map((v) => `<option>${esc(v)}</option>`).join("");
-}
+const fill = (id, label, vals) => ($(id).innerHTML = `<option value="">${label}</option>` + [...new Set(vals)].sort((a, b) => a.localeCompare(b)).map((v) => `<option>${esc(v)}</option>`).join(""));
 
 (async () => {
   try {
-    const res = await fetch("data/merchants.json", { cache: "no-cache" });
-    const d = await res.json();
+    const d = await (await fetch("data/merchants.json", { cache: "no-cache" })).json();
     ALL = d.merchants;
     if (!ALL.length) { $("updated").textContent = "No data yet. Run the “Refresh merchants” workflow once."; return; }
-    $("updated").textContent = `${d.count} merchants · updated ${fmtDate(d.generatedAt)}`;
-    fillSelect("tag", "All tags", ALL.flatMap((m) => m.tags));
-    fillSelect("cat", "All categories", ALL.flatMap((m) => m.categories));
+    $("updated").textContent = `${d.count} stores that accept Koko. Updated ${fmtDate(d.generatedAt)}.`;
+    const places = new Set();
+    ALL.forEach((m) => {
+      m._loc = m.locations.map((l) => [l.outlet, l.address, l.branch].join(" ")).join(" ").toLowerCase();
+      m.locations.forEach((l) => {
+        const seg = (l.address || "").split(",").map((s) => s.trim()).filter((s) => s && !/sri lanka|^\d+$/i.test(s)).pop();
+        [seg, l.branch].forEach((v) => v && v.length <= 30 && places.add(v));
+      });
+    });
+    $("locs").innerHTML = [...places].sort().map((v) => `<option value="${esc(v)}">`).join("");
+    fill("tag", "All tags", ALL.flatMap((m) => m.tags));
+    fill("cat", "All categories", ALL.flatMap((m) => m.categories));
     readURL(); apply();
-  } catch (e) {
-    $("updated").textContent = "Couldn’t load merchants. Check that data/merchants.json exists and reload.";
-  }
+  } catch { $("updated").textContent = "Couldn’t load merchants. Check that data/merchants.json exists and reload."; }
 })();
 
 let t;
-$("q").addEventListener("input", () => { clearTimeout(t); t = setTimeout(apply, 200); });
-["tag", "cat", "chan", "sort", "act"].forEach((id) => $(id).addEventListener("change", apply));
-$("more").addEventListener("click", more);
-$("grid").addEventListener("click", (e) => { const c = e.target.closest(".card"); if (c) openModal(VIEW[+c.dataset.i]); });
-$("close").addEventListener("click", () => $("dlg").close());
-$("dlg").addEventListener("click", (e) => { if (e.target === $("dlg")) $("dlg").close(); });
+$("q").oninput = $("loc").oninput = () => { clearTimeout(t); t = setTimeout(apply, 200); };
+["tag", "cat", "chan", "sort", "act", "img"].forEach((id) => ($(id).onchange = apply));
+$("reset").onclick = () => { FIELDS.forEach((k) => ($(k).value = k === "sort" ? "name" : "")); $("act").checked = $("img").checked = false; apply(); };
+$("more").onclick = more;
+$("grid").onclick = (e) => { const c = e.target.closest(".card"); if (c) openModal(VIEW[+c.dataset.i]); };
+$("close").onclick = () => $("dlg").close();
+$("dlg").onclick = (e) => { if (e.target === $("dlg")) $("dlg").close(); };
 </script>
 </body>
 </html>
