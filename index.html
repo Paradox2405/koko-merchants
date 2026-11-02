@@ -71,7 +71,7 @@ a{color:var(--accent)}h2{margin:0}h3{margin:18px 0 8px;font-size:1rem}
         <option value="">All channels</option><option value="online">Online</option>
         <option value="offline">In-store</option><option value="social">Social</option>
       </select>
-      <input id="loc" list="locs" placeholder="Location (e.g. Kandy)" aria-label="Filter by store location">
+      <input id="loc" list="locs" placeholder="Location (e.g. Kandy)" aria-label="Filter by branch location">
       <datalist id="locs"></datalist>
       <select id="sort" aria-label="Sort">
         <option value="name">Sort: Name A–Z</option><option value="disc">Sort: Highest discount</option>
@@ -168,7 +168,7 @@ function more() {
 
 function openModal(m) {
   const site = safeUrl(m.siteUrl), soc = safeUrl(m.socialUrl), loc = $("loc").value.trim().toLowerCase();
-  const text = (l) => [l.outlet, l.address, l.branch].join(" ").toLowerCase();
+  const text = (l) => (l.branch || "").toLowerCase();
   const locs = [...m.locations].sort((a, b) => (loc && text(b).includes(loc)) - (loc && text(a).includes(loc))).map((l) => {
     const map = safeUrl(l.map);
     return `<div class="loc ${loc && text(l).includes(loc) ? "hit" : ""}"><strong>${esc(l.outlet || l.branch || "Outlet")}</strong>${l.branch && l.outlet ? ` (${esc(l.branch)})` : ""}<br>${esc(l.address || "")}${map ? `<br><a href="${esc(map)}" target="_blank" rel="noopener">Open in Google Maps</a>` : ""}</div>`;
@@ -197,11 +197,8 @@ const fill = (id, label, vals) => ($(id).innerHTML = `<option value="">${label}<
     $("updated").textContent = `${d.count} stores that accept Koko. Updated ${fmtDate(d.generatedAt)}.`;
     const places = new Set();
     ALL.forEach((m) => {
-      m._loc = m.locations.map((l) => [l.outlet, l.address, l.branch].join(" ")).join(" ").toLowerCase();
-      m.locations.forEach((l) => {
-        const seg = (l.address || "").split(",").map((s) => s.trim()).filter((s) => s && !/sri lanka|^\d+$/i.test(s)).pop();
-        [seg, l.branch].forEach((v) => v && v.length <= 30 && places.add(v));
-      });
+      m._loc = m.locations.map((l) => (l.branch || "").trim()).join("|").toLowerCase();
+      m.locations.forEach((l) => l.branch && places.add(l.branch.trim()));
     });
     $("locs").innerHTML = [...places].sort().map((v) => `<option value="${esc(v)}">`).join("");
     fill("tag", "All tags", ALL.flatMap((m) => m.tags));
