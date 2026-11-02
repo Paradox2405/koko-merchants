@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Koko partner merchants</title>
+<style>
+:root{--bg:#f7f6f3;--card:#fff;--ink:#1d1f24;--mute:#6b7280;--line:#e5e3dd;--accent:#e4572e;--chip:#efede7;--ok:#1f7a4d}
+@media(prefers-color-scheme:dark){:root{--bg:#15161a;--card:#1e2025;--ink:#eceae4;--mute:#9a9fa8;--line:#2d3037;--chip:#2a2d34;--accent:#ff7a52;--ok:#5fd09a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:1200px;margin:0 auto;padding:16px}
+h1{font-size:1.6rem;margin:8px 0 2px;letter-spacing:-.02em}
+.sub{color:var(--mute);margin:0 0 16px;font-size:.9rem}
+.bar{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0;border-bottom:1px solid var(--line)}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+input,select,button{font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:9px 10px}
+#q{width:100%}
+select{flex:1 1 140px;min-width:0}
+label.chk{display:flex;align-items:center;gap:6px;font-size:.9rem;padding:0 4px}
+button{cursor:pointer}button:hover{border-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#count{color:var(--mute);font-size:.85rem;margin:12px 0}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:left;display:flex;flex-direction:column;gap:10px;cursor:pointer;width:100%}
+.top{display:flex;gap:12px;align-items:center}
+.logo{width:56px;height:56px;border-radius:10px;object-fit:contain;background:var(--chip);flex:none;display:grid;place-items:center;font-weight:700;font-size:1.3rem;color:var(--mute);overflow:hidden}
+.logo img{width:100%;height:100%;object-fit:contain}
+.name{font-weight:650;line-height:1.2;overflow-wrap:anywhere}
+.badge{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:.8rem;border-radius:6px;padding:2px 8px}
+.badge.off{background:var(--chip);color:var(--mute)}
+.ch{font-size:.78rem;color:var(--mute);display:flex;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{background:var(--chip);border-radius:20px;padding:2px 9px;font-size:.75rem;color:var(--mute)}
+.empty{padding:48px 0;text-align:center;color:var(--mute)}
+#more{display:block;margin:20px auto}
+dialog{border:0;border-radius:14px;padding:0;width:min(640px,94vw);max-height:90vh;background:var(--card);color:var(--ink)}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+.dbody{padding:18px}
+.banner{width:100%;aspect-ratio:16/6;object-fit:cover;background:var(--chip);display:block}
+.x{position:absolute;right:10px;top:10px}
+dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:12px 0}dt{color:var(--mute)}dd{margin:0}
+.loc{padding:8px 0;border-top:1px solid var(--line);font-size:.9rem}
+a{color:var(--accent)}
+h3{margin:16px 0 6px;font-size:1rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Koko partner merchants</h1>
+  <p class="sub" id="updated">Loading…</p>
+  <div class="bar">
+    <input id="q" type="search" placeholder="Search merchants, keywords, tags" aria-label="Search">
+    <div class="row">
+      <select id="tag" aria-label="Tag"></select>
+      <select id="cat" aria-label="Category"></select>
+      <select id="chan" aria-label="Channel">
+        <option value="">All channels</option><option value="online">Online</option>
+        <option value="offline">In-store</option><option value="social">Social</option>
+      </select>
+      <select id="sort" aria-label="Sort">
+        <option value="name">Name A–Z</option><option value="disc">Highest discount</option>
+        <option value="new">Recently updated</option>
+      </select>
+      <label class="chk"><input type="checkbox" id="act"> Active discounts</label>
+    </div>
+  </div>
+  <div id="count"></div>
+  <div class="grid" id="grid"></div>
+  <button id="more" hidden>Show more</button>
+</div>
+<dialog id="dlg"><button class="x" id="close" aria-label="Close">✕</button><div id="dc"></div></dialog>
+
+<script>
+const $ = (id) => document.getElementById(id);
+// Set to true only after confirming Koko permits showing merchant logos/banners on your site.
+const SHOW_IMAGES = false;
+const PAGE = 48;
+let ALL = [], VIEW = [], shown = 0;
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const safeUrl = (u) => (/^https?:\/\//i.test(u || "") ? u : null);
+const fmtDate = (d) => (d ? new Date(d).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : "—");
+const isActive = (m) => {
+  if (!m.discount) return false;
+  const n = Date.now();
+  return (!m.start || n >= Date.parse(m.start)) && (!m.end || n <= Date.parse(m.end) + 864e5 - 1);
+};
+
+function logoHTML(m) {
+  const ph = `<span>${esc(m.name.charAt(0).toUpperCase())}</span>`;
+  return `<div class="logo" data-i="${esc(m.name.charAt(0).toUpperCase())}">${SHOW_IMAGES && m.logo ? `<img loading="lazy" alt="" src="${esc(m.logo)}" onerror="this.remove()">` : ""}${SHOW_IMAGES && m.logo ? "" : ph}</div>`;
+}
+// If the image fails, show the initial instead
+document.addEventListener("error", (e) => {
+  if (e.target.tagName === "IMG" && e.target.closest(".logo") && !e.target.closest(".logo").querySelector("span")) {
+    const p = e.target.closest(".logo"); p.insertAdjacentHTML("beforeend", `<span>${esc(p.dataset.i || "?")}</span>`);
+  }
+}, true);
+
+function cardHTML(m, i) {
+  const chips = m.tags.slice(0, 3).map((t) => `<span class="chip">${esc(t)}</span>`).join("") +
+    (m.tags.length > 3 ? `<span class="chip">+${m.tags.length - 3}</span>` : "");
+  const badge = m.discount ? `<span class="badge ${isActive(m) ? "" : "off"}">${esc(m.discount)}</span>` : "";
+  const ch = [m.offline && "In-store", m.online && "Online", m.social && "Social"].filter(Boolean).join(" · ");
+  return `<button class="card" data-i="${i}">
+    <div class="top">${logoHTML(m)}
+    <div><div class="name">${esc(m.name)}</div>${badge}</div></div>
+    <div class="ch">${esc(ch)}</div><div class="chips">${chips}</div></button>`;
+}
+
+function readURL() {
+  const p = new URLSearchParams(location.search);
+  $("q").value = p.get("q") || ""; $("tag").value = p.get("tag") || ""; $("cat").value = p.get("cat") || "";
+  $("chan").value = p.get("chan") || ""; $("sort").value = p.get("sort") || "name"; $("act").checked = p.get("act") === "1";
+}
+function writeURL() {
+  const p = new URLSearchParams();
+  [["q", $("q").value.trim()], ["tag", $("tag").value], ["cat", $("cat").value], ["chan", $("chan").value],
+   ["sort", $("sort").value === "name" ? "" : $("sort").value], ["act", $("act").checked ? "1" : ""]]
+    .forEach(([k, v]) => v && p.set(k, v));
+  history.replaceState(null, "", p.toString() ? "?" + p : location.pathname);
+}
+
+function apply() {
+  const q = $("q").value.trim().toLowerCase(), tag = $("tag").value, cat = $("cat").value, chan = $("chan").value;
+  VIEW = ALL.filter((m) =>
+    (!q || q.split(/\s+/).every((w) => m.search.includes(w))) &&
+    (!tag || m.tags.includes(tag)) && (!cat || m.categories.includes(cat)) &&
+    (!chan || m[chan]) && (!$("act").checked || isActive(m)));
+  const s = $("sort").value;
+  if (s === "name") VIEW.sort((a, b) => a.name.localeCompare(b.name));
+  if (s === "disc") VIEW.sort((a, b) => b.discountPct - a.discountPct || a.name.localeCompare(b.name));
+  if (s === "new") VIEW.sort((a, b) => (b.updatedAt || "").localeCompare(a.updatedAt || ""));
+  shown = 0; $("grid").innerHTML = ""; writeURL(); more();
+}
+function more() {
+  const chunk = VIEW.slice(shown, shown + PAGE);
+  $("grid").insertAdjacentHTML("beforeend", chunk.map((m, k) => cardHTML(m, shown + k)).join(""));
+  shown += chunk.length;
+  $("more").hidden = shown >= VIEW.length;
+  $("count").textContent = VIEW.length ? `${VIEW.length} merchant${VIEW.length === 1 ? "" : "s"}` : "";
+  if (!VIEW.length) $("grid").innerHTML = `<div class="empty">No merchants match. Try clearing a filter or searching a different word.</div>`;
+}
+
+function openModal(m) {
+  const site = safeUrl(m.siteUrl), soc = safeUrl(m.socialUrl);
+  const locs = m.locations.map((l) => {
+    const map = safeUrl(l.map);
+    return `<div class="loc"><strong>${esc(l.outlet || l.branch || "Outlet")}</strong>${l.branch && l.outlet ? ` (${esc(l.branch)})` : ""}<br>${esc(l.address || "")}${map ? `<br><a href="${esc(map)}" target="_blank" rel="noopener">Open in Google Maps</a>` : ""}</div>`;
+  }).join("");
+  $("dc").innerHTML = `
+    ${SHOW_IMAGES && m.banner ? `<img class="banner" alt="" src="${esc(m.banner)}" onerror="this.remove()">` : ""}
+    <div class="dbody">
+      <div class="top">${logoHTML(m)}<h2 style="margin:0">${esc(m.name)}</h2></div>
+      <dl>
+        ${m.discount ? `<dt>Discount</dt><dd>${esc(m.discount)}${m.discountNote ? `<br><small>${esc(m.discountNote)}</small>` : ""}</dd>
+        <dt>Valid</dt><dd>${fmtDate(m.start)} to ${fmtDate(m.end)} ${isActive(m) ? `<strong style="color:var(--ok)">Active</strong>` : `<span style="color:var(--mute)">Not active</span>`}</dd>` : ""}
+        <dt>Channels</dt><dd>${[m.offline && "In-store", m.online && "Online", m.social && "Social"].filter(Boolean).join(", ") || "—"}</dd>
+        ${site ? `<dt>Website</dt><dd><a href="${esc(site)}" target="_blank" rel="noopener">${esc(site.replace(/^https?:\/\//, ""))}</a></dd>` : ""}
+        ${soc ? `<dt>Social</dt><dd><a href="${esc(soc)}" target="_blank" rel="noopener">${esc(soc.replace(/^https?:\/\//, ""))}</a></dd>` : ""}
+      </dl>
+      ${m.categories.length ? `<h3>Categories</h3><div class="chips">${m.categories.map((c) => `<span class="chip">${esc(c)}</span>`).join("")}</div>` : ""}
+      ${m.tags.length ? `<h3>Tags</h3><div class="chips">${m.tags.map((c) => `<span class="chip">${esc(c)}</span>`).join("")}</div>` : ""}
+      ${locs ? `<h3>Store locations (${m.locations.length})</h3>${locs}` : ""}
+    </div>`;
+  $("dlg").showModal();
+}
+
+function fillSelect(id, label, values) {
+  $(id).innerHTML = `<option value="">${label}</option>` + [...new Set(values)].sort((a, b) => a.localeCompare(b))
+    .map((v) => `<option>${esc(v)}</option>`).join("");
+}
+
+(async () => {
+  try {
+    const res = await fetch("data/merchants.json", { cache: "no-cache" });
+    const d = await res.json();
+    ALL = d.merchants;
+    if (!ALL.length) { $("updated").textContent = "No data yet. Run the “Refresh merchants” workflow once."; return; }
+    $("updated").textContent = `${d.count} merchants · updated ${fmtDate(d.generatedAt)}`;
+    fillSelect("tag", "All tags", ALL.flatMap((m) => m.tags));
+    fillSelect("cat", "All categories", ALL.flatMap((m) => m.categories));
+    readURL(); apply();
+  } catch (e) {
+    $("updated").textContent = "Couldn’t load merchants. Check that data/merchants.json exists and reload.";
+  }
+})();
+
+let t;
+$("q").addEventListener("input", () => { clearTimeout(t); t = setTimeout(apply, 200); });
+["tag", "cat", "chan", "sort", "act"].forEach((id) => $(id).addEventListener("change", apply));
+$("more").addEventListener("click", more);
+$("grid").addEventListener("click", (e) => { const c = e.target.closest(".card"); if (c) openModal(VIEW[+c.dataset.i]); });
+$("close").addEventListener("click", () => $("dlg").close());
+$("dlg").addEventListener("click", (e) => { if (e.target === $("dlg")) $("dlg").close(); });
+</script>
+</body>
+</html>
