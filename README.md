@@ -2,7 +2,7 @@
 
 A free, fast, searchable directory of merchants that accept **Koko** (Buy Now, Pay Later, "BNPL") in Sri Lanka. Find online stores, in-store outlets and social sellers that offer Koko, filter by category, and check current Koko discounts in one place.
 
-**Live site:** https://YOUR-USERNAME.github.io/koko-merchants/
+**Live site:** https://paradox2405.github.io/koko-merchants/
 
 ## Why this exists
 
@@ -35,13 +35,17 @@ Koko works with over a thousand merchants, but there is currently no easy way to
 
 ## How it works
 
-The site is a single static `index.html` with no server. A GitHub Actions workflow fetches the merchant data on the 1st of each month, or whenever you press "Run workflow", saves it as `data/merchants.json`, and commits it. The API token is stored only as an encrypted GitHub secret and never appears in the site or the repository.
+The site is static, with no server. A GitHub Actions workflow fetches the merchant data on the 1st of each month, or whenever you press "Run workflow", saves it as `data/merchants.json`, regenerates the crawlable pages, and commits the result. The API token is stored only as an encrypted GitHub secret and never appears in the site or the repository.
 
 ```
 .
-├─ index.html                      # the whole frontend
+├─ index.html                      # the search app (build fills its seo: regions)
+├─ assets/site.css                 # styles shared by all pages
 ├─ data/merchants.json             # generated data, do not edit by hand
+├─ stores/, locations/             # generated product and city pages
+├─ how-koko-works/, sitemap.xml    # generated guide and sitemap
 ├─ scripts/fetch-merchants.mjs     # fetch and clean script
+├─ scripts/build-site.mjs          # page generator
 └─ .github/workflows/refresh.yml   # monthly + manual refresh
 ```
 
@@ -53,7 +57,9 @@ The site is a single static `index.html` with no server. A GitHub Actions workfl
 4. Run Actions → "Refresh merchants" → Run workflow.
 5. Enable Settings → Pages → Deploy from branch → `main` / root.
 
-To test locally: `KOKO_TOKEN=yourtoken node scripts/fetch-merchants.mjs`, then `npx serve .` and open the printed address.
+To test locally: `KOKO_TOKEN=yourtoken node scripts/fetch-merchants.mjs` (optional, the data is committed), then `node scripts/build-site.mjs`, then `npx serve .` and open the printed address.
+
+If you fork this or move it to a custom domain, change `BASE_URL` in `scripts/build-site.mjs` and rebuild.
 
 Merchant logos and banners are off by default. To show them, set `SHOW_IMAGES = true` in `index.html` only after confirming you are allowed to display them.
 
