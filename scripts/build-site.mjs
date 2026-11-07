@@ -212,7 +212,7 @@ function merchantRow(m, hub) {
     outlets = `<ul class="outlets">${items}${extra}</ul>`;
   }
   return `<li class="mcard">
-      <div><strong>${esc(m.name)}</strong>${badge}</div>
+      <div class="top">${logoTile(m)}<div><strong>${esc(m.name)}</strong>${badge}</div></div>
       <div class="meta">${chans(m).join(" · ")}${site ? ` · ${extLink(site, "Website")}` : ""}</div>
       ${outlets}${tags ? `<div class="chips">${tags}</div>` : ""}
     </li>`;
@@ -319,11 +319,21 @@ function region(html, name, content) {
   return html.replace(re, (_, a, b) => `${a}\n${content}\n${b}`);
 }
 
+// index.html owns the SHOW_IMAGES switch, so the static pages follow it too.
+const SHOW_IMAGES = /const SHOW_IMAGES = true/.test(await readFile("index.html", "utf8"));
+
+// Same markup as logoHTML() in index.html: logo, then banner, then the letter tile if neither exists or loads.
+function logoTile(m) {
+  const src = SHOW_IMAGES ? safeUrl(m.logo) || safeUrl(m.banner) : null;
+  const img = src ? `<img ${safeUrl(m.logo) ? "" : 'class="fill" '}loading="lazy" alt="" src="${esc(src)}" onerror="this.remove()">` : "";
+  return `<div class="logo" style="--h:${hue(m.name)}"><span>${esc(m.name.charAt(0).toUpperCase())}</span>${img}</div>`;
+}
+
 // Same markup as cardHTML() in index.html, but not clickable until the app takes over.
 function homeCard(m) {
   const chips = m.tags.slice(0, 3).map((t) => `<span class="chip">${esc(t)}</span>`).join("") + (m.tags.length > 3 ? `<span class="chip">+${m.tags.length - 3}</span>` : "");
   const badge = isActive(m) ? `<span class="badge">${esc(m.discount)}</span>` : "";
-  return `<article class="card"><div class="top"><div class="logo" style="--h:${hue(m.name)}"><span>${esc(m.name.charAt(0).toUpperCase())}</span></div><div><div class="name">${esc(m.name)}</div>${badge}</div></div><div class="ch">${chans(m).map((c) => `<span class="pill">${c}</span>`).join("")}</div><div class="chips">${chips}</div></article>`;
+  return `<article class="card"><div class="top">${logoTile(m)}<div><div class="name">${esc(m.name)}</div>${badge}</div></div><div class="ch">${chans(m).map((c) => `<span class="pill">${c}</span>`).join("")}</div><div class="chips">${chips}</div></article>`;
 }
 
 async function buildHome() {

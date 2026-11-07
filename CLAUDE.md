@@ -39,8 +39,7 @@ Data flows one way: Strapi CMS (`cms.paykoko.com`) → `scripts/fetch-merchants.
 - **Search matches a precomputed field.** `m.search` (name, keywords, tags) is built in the script, not the browser, so changing what is searchable also requires a data refresh.
 - **Escape CMS values when rendering.** The UI is built from HTML template strings set via `innerHTML`, so CMS text must go through `esc()` and links through `safeUrl()`.
 - **Filter state lives in the URL.** New text or select filters need adding to `FIELDS`; checkboxes (`act`, `img`) are handled separately in `readURL()`, `writeURL()`, and the reset handler.
-- **`SHOW_IMAGES` stays `false`** unless permission to display merchant logos and banners has been confirmed. The data still includes the image URLs.
-- **The root `merchants.json` is unused.** It is an empty placeholder; the site only reads `data/merchants.json`.
+- **`SHOW_IMAGES` in `index.html` controls images on every page**, and the build reads it too. Tiles use the logo, then the banner, then the first letter if neither exists or loads. Only about 4% of merchants have a logo, so most tiles show a cropped banner.
 - **Hub categories come from `tags`, not `categories`.** `categories` holds campaign names such as "Birthday - Launchpad".
 - **Static pages can't track the clock.** They judge discounts as active on the data's `generatedAt` date and state that date; keep output free of `Date.now()` so builds stay reproducible.
 - **Guide facts need a source.** Check `how-koko-works` against paykoko.com (it needs a JS-capable browser) and update `GUIDE_CHECKED`. `koko.lk` is an unrelated travel site, so don't link it.

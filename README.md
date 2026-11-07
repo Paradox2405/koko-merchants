@@ -61,7 +61,7 @@ To test locally: `KOKO_TOKEN=yourtoken node scripts/fetch-merchants.mjs` (option
 
 If you fork this or move it to a custom domain, change `BASE_URL` in `scripts/build-site.mjs` and rebuild.
 
-Merchant logos and banners are off by default. To show them, set `SHOW_IMAGES = true` in `index.html` only after confirming you are allowed to display them.
+Merchant logos and banners are shown when `SHOW_IMAGES = true` in `index.html`. Each store tile uses the logo, then the banner, then the store's first letter if neither exists or loads. If you fork this project, confirm you are allowed to display the images, or set it to `false` and rebuild.
 
 ## Frequently asked questions
 
