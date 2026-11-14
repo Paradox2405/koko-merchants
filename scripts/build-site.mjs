@@ -53,6 +53,7 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
 const safeUrl = (u) => (/^https?:\/\//i.test(u || "") ? u : null);
 const hue = (s) => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7);
 const num = (n) => n.toLocaleString("en-US");
+const listPhrase = (items) => (items.length > 1 ? `${items.slice(0, -1).join(", ")} and ${items.at(-1)}` : items.join(""));
 const plural = (n, word) => `${num(n)} ${word}${n === 1 ? "" : "s"}`;
 const fmtDate = (d) => new Date(d).toLocaleDateString("en-GB", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
 const byName = (a, b) => a.name.localeCompare(b.name);
@@ -131,6 +132,7 @@ function headMeta({ title, description, path, prefix = "", type = "website" }) {
 <meta name="description" content="${esc(description)}">
 <link rel="canonical" href="${esc(url)}">
 <link rel="icon" href="${prefix}assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="${prefix}assets/apple-touch-icon.png">
 <meta property="og:type" content="${type}">
 <meta property="og:site_name" content="${esc(SITE_NAME)}">
 <meta property="og:title" content="${esc(title)}">
@@ -176,7 +178,9 @@ ${breadcrumbs(crumb, path)}
 <body>
 <div class="wrap prose">
   <nav class="crumbs" aria-label="Breadcrumb"><a href="${prefix}">Koko shops in Sri Lanka</a> <span aria-hidden="true">›</span> ${esc(crumb)}</nav>
+  <main>
 ${body}
+  </main>
   <footer>
   ${footerNav(prefix)}
   <p>${DISCLAIMER}</p>
@@ -325,7 +329,7 @@ const SHOW_IMAGES = /const SHOW_IMAGES = true/.test(await readFile("index.html",
 // Same markup as logoHTML() in index.html: logo, then banner, then the letter tile if neither exists or loads.
 function logoTile(m) {
   const src = SHOW_IMAGES ? safeUrl(m.logo) || safeUrl(m.banner) : null;
-  const img = src ? `<img ${safeUrl(m.logo) ? "" : 'class="fill" '}loading="lazy" alt="" src="${esc(src)}" onerror="this.remove()">` : "";
+  const img = src ? `<img ${safeUrl(m.logo) ? "" : 'class="fill" '}loading="lazy" alt="${esc(m.name)}" src="${esc(src)}" onerror="this.remove()">` : "";
   return `<div class="logo" style="--h:${hue(m.name)}"><span>${esc(m.name.charAt(0).toUpperCase())}</span>${img}</div>`;
 }
 
@@ -363,8 +367,19 @@ ${jsonLd({ "@context": "https://schema.org", "@type": "WebSite", name: SITE_NAME
     <div class="hub-links">
       ${links(cityHubs, (h) => h.name)}
     </div>
-    <h2>New to Koko?</h2>
-    <p><a href="how-koko-works/">How Koko Pay works: instalments, fees and FAQ</a></p>
+  </section>
+  <section class="prose home-faq" aria-label="Frequently asked questions">
+    <h2>Koko Pay shops: frequently asked questions</h2>
+    <h3>Which shops accept Koko Pay in Sri Lanka?</h3>
+    <p>As of ${esc(updated)}, this directory lists ${num(n)} merchants that accept Koko: ${num(offline)} with in-store outlets, ${num(online)} that sell online and ${num(social)} that sell through social media. The biggest groups are ${esc(listPhrase(tagHubs.slice(0, 4).map((h) => `${h.label.toLowerCase()} (${num(h.members.length)})`)))}. Use the search box or the store types and locations above to narrow it down.</p>
+    <h3>Which cities have the most shops that accept Koko?</h3>
+    <p>Counting merchants with an outlet in each place: ${listPhrase(cityHubs.filter((h) => !/^colombo \d/.test(h.key)).slice(0, 5).map((h) => `<a href="${h.path}">${esc(h.name)}</a> (${num(h.members.length)})`))}. The Colombo figure includes its numbered areas. Many more sell online.</p>
+    <h3>How do I pay with Koko?</h3>
+    <p>Download the Koko app. When shopping online, choose Koko at checkout. In a store, scan the merchant's Koko QR code with the app. You pay the first of 3 instalments when you buy and the rest over 60 days, at 0% interest according to Koko. <a href="how-koko-works/">Read the full guide to fees, rescheduling and refunds</a>.</p>
+    <h3>Is this the official Koko merchant list?</h3>
+    <p>No. This is an independent directory, not run by or affiliated with Koko. For official information and the latest offers, use the Koko app or visit <a href="${OFFICIAL_SITE}" rel="noopener">Koko's website</a>.</p>
+    <h3>How up to date is the list?</h3>
+    <p>It is refreshed about once a month, and the latest update was ${esc(updated)}. Merchants, discounts and outlets change often, so confirm with the merchant before you buy.</p>
   </section>`);
   await writeFile("index.html", html);
 }
