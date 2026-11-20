@@ -79,12 +79,29 @@ const ranked = (ms) => ms.filter(listable).sort((a, b) => score(b) - score(a) ||
 // ---------- hubs ----------
 const branchKey = (s) => (s || "").trim().toLowerCase().replace(/\s+/g, " ");
 
-const tagHubs = Object.entries(TAGS)
-  .map(([tag, [slug, label]]) => ({
+// Store types people search for (Keyword Planner, Nov 2026: "koko payment tyre shop" gets
+// 100-1K searches a month) that have no tag. Matched on whole words in the name and
+// keywords, so keep the patterns tight: "mart" alone would catch "Shoe Mart".
+const MATCHED = {
+  tyres: ["tyre-shops", "Tyre Shops", /\b(tyres?|tires?)\b/, "tyre"],
+  hotels: ["hotels", "Hotels and Resorts", /\b(hotels?|resorts?)\b/, "hotel"],
+  computers: ["computer-shops", "Computer and Laptop Shops", /\b(computers?|laptops?)\b/, "computer"],
+  salons: ["salons", "Salons", /\b(salons?|barbers?)\b/, "salon"],
+  furniture: ["furniture", "Furniture Shops", /\b(furniture|mattress(es)?)\b/, "furniture"],
+};
+
+const tagHubs = [
+  ...Object.entries(TAGS).map(([tag, [slug, label]]) => ({
     kind: "tag", tag, slug, label, path: `stores/${slug}/`,
     filter: `?tag=${encodeURIComponent(tag)}`,
     members: ALL.filter((m) => m.tags.includes(tag)),
-  }))
+  })),
+  ...Object.values(MATCHED).map(([slug, label, re, word]) => ({
+    kind: "tag", tag: null, slug, label, path: `stores/${slug}/`,
+    filter: `?q=${encodeURIComponent(word)}`,
+    members: ALL.filter((m) => re.test(`${m.name} ${m.search}`.toLowerCase())),
+  })),
+]
   .filter((h) => h.members.length >= MIN_MERCHANTS)
   .sort((a, b) => b.members.length - a.members.length);
 
@@ -233,11 +250,12 @@ function hubPage(hub) {
   const isTag = hub.kind === "tag";
   const phrase = isTag ? hub.label.toLowerCase() : `shops in ${hub.name}`;
 
-  const h1 = isTag ? `${hub.label} That Accept Koko in Sri Lanka` : `Koko Shops in ${hub.name}`;
-  const title = isTag ? `${h1} (${num(n)})` : `${h1}: ${plural(n, "Store")} That Accept Koko Pay`;
+  // Search Console and Keyword Planner show people search "koko payment ... shops" more than "koko pay".
+  const h1 = isTag ? `${hub.label} That Accept Koko Payment in Sri Lanka` : `Koko Payment Shops in ${hub.name}`;
+  const title = isTag ? `Koko Payment ${hub.label} in Sri Lanka (${num(n)})` : `${h1}: ${plural(n, "Store")} That Accept Koko Pay`;
   const description = isTag
-    ? `Browse ${num(n)} ${phrase} in Sri Lanka that accept Koko Pay, with ${num(online)} online and ${num(offline)} in-store. Unofficial directory, updated ${updated}.`
-    : `Find ${plural(n, "merchant")} with outlets in ${hub.name} that accept Koko Pay, with addresses and map links. Unofficial directory, updated ${updated}.`;
+    ? `${num(n)} ${phrase} in Sri Lanka that accept Koko payment: ${num(online)} online, ${num(offline)} in-store. Unofficial directory, updated ${updated}.`
+    : `Koko payment shops in ${hub.name}: ${plural(n, "merchant")} with outlets there that accept Koko Pay, with addresses and maps. Unofficial, updated ${updated}.`;
 
   const relTags = related(hub, tagHubs, 6);
   const relCities = related(hub, cityHubs, 6);
@@ -252,7 +270,7 @@ function hubPage(hub) {
   const body = `  <h1>${esc(h1)}</h1>
   <p class="lede">${intro}</p>
   <p class="sub">Data updated ${esc(updated)}.${discountLine} Koko splits a purchase into 3 instalments: <a href="${prefix}how-koko-works/">see how it works</a>. Confirm with the merchant or the Koko app before you buy.</p>
-  <p><a class="cta" href="${prefix}${hub.filter}">Search and filter all ${esc(phrase)}</a></p>
+  <p><a class="cta" href="${prefix}${hub.filter}">${hub.kind === "tag" && !hub.tag ? `Search the full directory for "${esc(decodeURIComponent(hub.filter.slice(3)))}"` : `Search and filter all ${esc(phrase)}`}</a></p>
   <h2>${list.length < n ? `${num(list.length)} of ${num(n)} merchants` : `All ${plural(n, "merchant")}`}</h2>
   <ul class="mlist">
     ${list.map((m) => merchantRow(m, hub)).join("\n    ")}
@@ -275,8 +293,8 @@ function guidePage() {
   const prefix = "../";
   const links = [...tagHubs.slice(0, 6), ...cityHubs.slice(0, 4)]
     .map((h) => `<a class="chip-link" href="${prefix}${h.path}">${esc(h.kind === "tag" ? h.label : h.name)}</a>`).join("\n    ");
-  const body = `  <h1>How Koko Pay Works in Sri Lanka</h1>
-  <p class="lede">Koko is a buy now, pay later service in Sri Lanka. It lets you split a purchase into 3 equal instalments over 60 days at 0% interest, online and in participating stores.</p>
+  const body = `  <h1>How Koko Payment Works in Sri Lanka</h1>
+  <p class="lede">Koko, also called Koko Pay or Koko payment, is a buy now, pay later service in Sri Lanka. It lets you split a purchase into 3 equal instalments over 60 days at 0% interest, online and in participating stores.</p>
   <p class="sub">This is an independent, unofficial guide based on <a href="${OFFICIAL_SITE}" rel="noopener">Koko's website</a> and terms, last checked on ${esc(fmtDate(GUIDE_CHECKED))}. Terms can change, so check the Koko app or website for the current version.</p>
 
   <h2>How to pay with Koko</h2>
@@ -295,10 +313,12 @@ function guidePage() {
   <p>Koko says each customer gets 2 free reschedules a year, and each one after that costs a flat Rs. 500, paid when you reschedule. A reschedule extends a payment by up to two weeks. You request it in the app, before the instalment's due date.</p>
   <h3>Can I use a debit card?</h3>
   <p>Yes. Koko says you can use a debit or credit card.</p>
-  <h3>How much can I spend?</h3>
-  <p>Koko evaluates each purchase rather than publishing a fixed limit. It says new customers have tighter limits, and that a longer history of successful repayments makes higher spending more likely.</p>
+  <h3>What is the Koko spending limit?</h3>
+  <p>Koko doesn't publish a fixed spending limit. It evaluates each purchase instead. It says new customers have tighter limits, and that a longer history of successful repayments makes higher spending more likely.</p>
   <h3>How do refunds work?</h3>
   <p>Once the merchant starts a refund, Koko returns the money to the card you paid with. Koko says it takes 3 to 5 working days to reach your account.</p>
+  <h3>How do I contact Koko?</h3>
+  <p>This directory isn't run by Koko and can't help with your account, payments or limits. For support, use the help options in the Koko app or go to <a href="${OFFICIAL_SITE}" rel="noopener">Koko's website</a>.</p>
   <h3>Who can use Koko?</h3>
   <p>Koko's terms require you to be at least 18 years old. See <a href="${OFFICIAL_SITE}terms" rel="noopener">the full terms</a> for the other requirements.</p>
 
@@ -308,8 +328,8 @@ function guidePage() {
     ${links}
   </div>`;
   return page({
-    title: "How Koko Pay Works in Sri Lanka: Fees and FAQ (Unofficial)",
-    description: "An unofficial guide to Koko Pay in Sri Lanka: 3 instalments over 60 days at 0% interest, how to pay online and in-store, rescheduling fees, refunds and limits.",
+    title: "What Is Koko Payment? How Koko Pay Works in Sri Lanka",
+    description: "What is Koko payment in Sri Lanka? Unofficial guide to Koko Pay: 3 interest-free instalments over 60 days, spending limits, rescheduling fees and refunds.",
     path,
     crumb: "How Koko works",
     body,
@@ -350,8 +370,8 @@ async function buildHome() {
 
   let html = await readFile("index.html", "utf8");
   html = region(html, "head", `${headMeta({
-    title: `Koko Pay Shops in Sri Lanka: ${rounded}+ Stores That Accept Koko`,
-    description: `Search ${num(n)} shops in Sri Lanka that accept Koko Pay, online and in-store. Filter by product, city and discount. Unofficial directory, updated ${updated}.`,
+    title: `Koko Payment Shops in Sri Lanka | ${rounded}+ Koko Pay Stores`,
+    description: `Koko payment available shops in Sri Lanka: ${num(n)} stores that accept Koko Pay online and in-store, by product and city. Unofficial, updated ${updated}.`,
     path: "",
   })}
 ${jsonLd({ "@context": "https://schema.org", "@type": "WebSite", name: SITE_NAME, url: `${BASE_URL}/`, inLanguage: "en" })}`);
@@ -370,7 +390,7 @@ ${jsonLd({ "@context": "https://schema.org", "@type": "WebSite", name: SITE_NAME
   </section>
   <section class="prose home-faq" aria-label="Frequently asked questions">
     <h2>Koko Pay shops: frequently asked questions</h2>
-    <h3>Which shops accept Koko Pay in Sri Lanka?</h3>
+    <h3>Which shops accept Koko payment in Sri Lanka?</h3>
     <p>As of ${esc(updated)}, this directory lists ${num(n)} merchants that accept Koko: ${num(offline)} with in-store outlets, ${num(online)} that sell online and ${num(social)} that sell through social media. The biggest groups are ${esc(listPhrase(tagHubs.slice(0, 4).map((h) => `${h.label.toLowerCase()} (${num(h.members.length)})`)))}. Use the search box or the store types and locations above to narrow it down.</p>
     <h3>Which cities have the most shops that accept Koko?</h3>
     <p>Counting merchants with an outlet in each place: ${listPhrase(cityHubs.filter((h) => !/^colombo \d/.test(h.key)).slice(0, 5).map((h) => `<a href="${h.path}">${esc(h.name)}</a> (${num(h.members.length)})`))}. The Colombo figure includes its numbered areas. Many more sell online.</p>
