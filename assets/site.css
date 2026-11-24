@@ -17,6 +17,22 @@ button{cursor:pointer}button:hover,select:hover,input:hover{border-color:var(--a
 .chk{display:flex;align-items:center;gap:7px;cursor:pointer}
 .chk input{width:17px;height:17px;padding:0;accent-color:var(--accent)}
 #reset{margin-left:auto;font-size:.85rem;padding:6px 12px;color:var(--mute)}
+.searchline{display:flex;gap:8px}#q{flex:1;min-width:0}
+#q,#loc{text-overflow:ellipsis}
+#ftoggle{display:none;flex:none;align-items:center;gap:6px}
+#ftoggle[aria-expanded=true]{border-color:var(--accent)}
+#fcount{background:var(--accent);color:var(--accent-ink);border-radius:999px;min-width:20px;padding:0 6px;font-size:.78rem;font-weight:700;line-height:20px;text-align:center}
+#fcount[hidden]{display:none}
+/* small or short screens: the sticky bar is just the search line until Filters is opened */
+@media(max-width:640px),(max-height:500px){
+.bar{padding:8px 0}
+#ftoggle{display:inline-flex}
+#filters{display:none}
+#filters.open{display:block;max-height:calc(100vh - 70px);max-height:calc(100dvh - 70px);overflow-y:auto}
+}
+@media(max-width:640px){
+.row{grid-template-columns:repeat(2,minmax(0,1fr))}.row #sort{grid-column:1/-1}
+}
 #count{color:var(--mute);font-size:.85rem;margin:14px 0 10px}
 .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));padding-bottom:8px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;text-align:left;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow);transition:transform .15s,border-color .15s}
@@ -36,6 +52,7 @@ button{cursor:pointer}button:hover,select:hover,input:hover{border-color:var(--a
 .chip{background:var(--chip);border-radius:999px;padding:2px 10px;font-size:.75rem;color:var(--mute)}
 .empty{grid-column:1/-1;padding:56px 0;text-align:center;color:var(--mute)}
 #more{display:block;margin:22px auto;padding:10px 28px}
+#more[hidden]{display:none}
 footer{color:var(--mute);font-size:.78rem;padding:26px 0 40px;border-top:1px solid var(--line);margin-top:26px}
 dialog{border:0;border-radius:16px;padding:0;width:min(660px,94vw);max-height:90vh;background:var(--card);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.35)}
 dialog::backdrop{background:rgba(0,0,0,.55)}

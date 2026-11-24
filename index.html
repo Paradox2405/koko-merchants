@@ -49,42 +49,54 @@
       </header>
       <main>
       <div class="bar">
-        <input
-          id="q"
-          type="search"
-          placeholder="Search by store, keyword or tag"
-          aria-label="Search merchants"
-        />
-        <div class="row">
-          <select id="tag" aria-label="Tag"></select>
-          <select id="cat" aria-label="Category"></select>
-          <select id="chan" aria-label="Channel">
-            <option value="">All channels</option>
-            <option value="online">Online</option>
-            <option value="offline">In-store</option>
-            <option value="social">Social</option>
-          </select>
+        <div class="searchline">
           <input
-            id="loc"
-            list="locs"
-            placeholder="Location (e.g. Kandy)"
-            aria-label="Filter by branch location"
+            id="q"
+            type="search"
+            placeholder="Search by store, keyword or tag"
+            aria-label="Search merchants"
           />
-          <datalist id="locs"></datalist>
-          <select id="sort" aria-label="Sort">
-            <option value="name">Sort: Name A–Z</option>
-            <option value="disc">Sort: Highest discount</option>
-            <option value="new">Sort: Recently updated</option>
-          </select>
+          <button
+            id="ftoggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="filters"
+          >
+            Filters<span id="fcount" hidden></span>
+          </button>
         </div>
-        <div class="checks">
-          <label class="chk"
-            ><input type="checkbox" id="act" /> Active discounts only</label
-          >
-          <label class="chk"
-            ><input type="checkbox" id="img" /> Stores with images first</label
-          >
-          <button id="reset" type="button">Clear filters</button>
+        <div id="filters">
+          <div class="row">
+            <select id="tag" aria-label="Tag"></select>
+            <select id="cat" aria-label="Category"></select>
+            <select id="chan" aria-label="Channel">
+              <option value="">All channels</option>
+              <option value="online">Online</option>
+              <option value="offline">In-store</option>
+              <option value="social">Social</option>
+            </select>
+            <input
+              id="loc"
+              list="locs"
+              placeholder="Location (e.g. Kandy)"
+              aria-label="Filter by branch location"
+            />
+            <datalist id="locs"></datalist>
+            <select id="sort" aria-label="Sort">
+              <option value="name">Sort: Name A–Z</option>
+              <option value="disc">Sort: Highest discount</option>
+              <option value="new">Sort: Recently updated</option>
+            </select>
+          </div>
+          <div class="checks">
+            <label class="chk"
+              ><input type="checkbox" id="act" /> Active discounts only</label
+            >
+            <label class="chk"
+              ><input type="checkbox" id="img" /> Stores with images first</label
+            >
+            <button id="reset" type="button">Clear filters</button>
+          </div>
         </div>
       </div>
       <div id="count" aria-live="polite"></div>
@@ -373,6 +385,22 @@
         );
       }
 
+      // the panel is collapsed on small screens, so show how many filters are set inside it
+      function showFilterCount() {
+        const n =
+          ["tag", "cat", "chan", "loc"].filter((k) => $(k).value.trim())
+            .length +
+          ($("sort").value !== "name") +
+          $("act").checked +
+          $("img").checked;
+        $("fcount").hidden = !n;
+        $("fcount").textContent = n;
+        $("ftoggle").setAttribute(
+          "aria-label",
+          n ? `Filters, ${n} set` : "Filters",
+        );
+      }
+
       function apply() {
         const q = $("q").value.trim().toLowerCase(),
           tag = $("tag").value,
@@ -404,6 +432,7 @@
         shown = 0;
         $("grid").innerHTML = "";
         writeURL();
+        showFilterCount();
         more();
       }
       function more() {
@@ -520,6 +549,10 @@
         FIELDS.forEach((k) => ($(k).value = k === "sort" ? "name" : ""));
         $("act").checked = $("img").checked = false;
         apply();
+      };
+      $("ftoggle").onclick = () => {
+        const open = $("filters").classList.toggle("open");
+        $("ftoggle").setAttribute("aria-expanded", open);
       };
       $("more").onclick = more;
       $("grid").onclick = (e) => {
